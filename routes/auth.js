@@ -51,17 +51,20 @@ function authMiddleware(req, res, next) {
   if (!token) return res.status(401).json({ error: 'Access denied' });
 
   try {
+    // 👉 đây là chỗ kiểm tra token hợp lệ + còn hạn
     const verified = jwt.verify(token, SECRET_KEY);
     req.user = verified;
     next();
   } catch (err) {
-    //  nếu token hết hạn
+    // 👉 nếu token hết hạn
     if (err.name === 'TokenExpiredError') {
       return res.status(401).json({ error: 'Token expired' });
     }
+    // 👉 nếu token sai (giả mạo / bị sửa)
     return res.status(400).json({ error: 'Invalid token' });
   }
 }
+
 
 // Protected route
 router.get('/profile', authMiddleware, async (req, res) => {
